@@ -31,28 +31,35 @@ public class Player extends Entity{
         this.originalTileSize=gp.getOriginalTileSize();
 
         solidArea = new Rectangle(
-                5*gp.getScale(),
-                21*gp.getScale(),
-                13*gp.getScale(),
-                26*gp.getScale());
+                4*gp.getScale(),
+                8*gp.getScale(),
+                8*gp.getScale(),
+                8*gp.getScale());
 
-        screenX=gp.getScreenWidth()/2 - (gp.getTileSize()/2)/2;
+        screenX=gp.getScreenWidth()/2 - (gp.getTileSize())/2;
         screenY=gp.getScreenHeight()/2 - (gp.getTileSize())/2;
 
     }
 
     public void setDefaultValues(){
-        worldX=gp.getTileSize()*6;
-        worldY=gp.getTileSize()*6;
+        worldX=gp.getTileSize()*1;
+        worldY=gp.getTileSize()*1;
         speed=4;
-        speed = gp.getWorldWidth()/576;
         direction = DIRECTION_DOWN;
         spriteNum=0;
     }
 
+    public void rescale(){
+        solidArea = new Rectangle(
+                4*gp.getScale(),
+                8*gp.getScale(),
+                8*gp.getScale(),
+                8*gp.getScale());
+    }
+
     public void getPlayerSprite(){
         try{
-            sprite=ImageIO.read(getClass().getResourceAsStream("/player/Player_Sprite_SheetV2.png"));
+            sprite=ImageIO.read(getClass().getResourceAsStream("/player/16bitplayer.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -91,7 +98,7 @@ public class Player extends Entity{
 
         if(spriteFrameCounter>=30){
             spriteNum++;
-            if (spriteNum==4)
+            if (spriteNum==2)
                 spriteNum=0;
             spriteFrameCounter=0;
         }
@@ -101,28 +108,34 @@ public class Player extends Entity{
 
         BufferedImage image = null;
         switch (direction) {
-            case (DIRECTION_UP):
-                image=sprite.getSubimage(spriteNum*(originalTileSize/2+1),147,
-                        originalTileSize/2,originalTileSize);
-                break;
-            case (DIRECTION_DOWN):
-                image=sprite.getSubimage(spriteNum*(originalTileSize/2+1),0,
-                        originalTileSize/2,originalTileSize);
-                break;
             case (DIRECTION_LEFT):
-                image=sprite.getSubimage(spriteNum*(originalTileSize/2+1),49,
-                        originalTileSize/2,originalTileSize);
+                image=sprite.getSubimage(spriteNum*(originalTileSize+1),(originalTileSize+1)*3,
+                        originalTileSize,originalTileSize);
                 break;
             case (DIRECTION_RIGHT):
-                image=sprite.getSubimage(spriteNum*(originalTileSize/2+1),98,
-                        originalTileSize/2,originalTileSize);
+                image=sprite.getSubimage(spriteNum*(originalTileSize+1),0,
+                        originalTileSize,originalTileSize);
+                break;
+            case (DIRECTION_UP):
+                image=sprite.getSubimage(spriteNum*(originalTileSize+1),(originalTileSize+1),
+                        originalTileSize,originalTileSize);
+                break;
+            case (DIRECTION_DOWN):
+                image=sprite.getSubimage(spriteNum*(originalTileSize+1),(originalTileSize+1)*2,
+                        originalTileSize,originalTileSize);
                 break;
         }
-        /*g2.setColor(new Color(0,0,0, 0.5f));
-        g2.fillOval(screenX, (int) (screenY + (playerHitbox.height*0.85f) * gp.getScale()),playerHitbox.width * gp.getScale(), (int) (playerHitbox.width * gp.getScale() / 2.5f));
-        g2.setColor(new Color(255,0,0));
-        g2.drawRect(screenX,screenY, playerHitbox.width*gp.getScale(), playerHitbox.height*gp.getScale());*/
-        g2.drawImage(image,screenX,screenY, gp.getTileSize()/2, gp.getTileSize(), null);
+        //draw a circle shadow
+        g2.setColor(new Color(0,0,0, 0.5f));
+        g2.fillOval(screenX + gp.getTileSize()/4, (int) (screenY + (gp.getTileSize()*0.80f)),(int)(gp.getTileSize()*0.60f),
+                (int) (gp.getTileSize() / 3.5f));
+        //draw sprite
+        g2.drawImage(image,screenX,screenY, gp.getTileSize(), gp.getTileSize(), null);
+
+        if (gp.keyHandler.getShowDebug()) {
+            g2.setColor(Color.red);
+            g2.drawRect(solidArea.x + screenX, solidArea.y + screenY, solidArea.width, solidArea.height);
+        }
     }
 
     public int getScreenX() {

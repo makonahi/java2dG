@@ -16,10 +16,9 @@ public class TileManager {
     private Tile[] tiles;
     private int[][] mapTileNum;
 
-    private final int COLUMN_COUNT=4;
+    private int waterFrame=0;
 
-    private final int tileSize;
-    private final int originalTileSize;
+    private final int COLUMN_COUNT=4;
 
     private BufferedImage sprites=null;
 
@@ -27,11 +26,8 @@ public class TileManager {
     public TileManager(GamePanel gp){
         this.gp = gp;
 
-        tiles = new Tile[16];
+        tiles = new Tile[32];
         mapTileNum=new int[gp.getMaxWorldCol()][gp.getMaxWorldRow()];
-
-        tileSize = gp.getTileSize();
-        originalTileSize=gp.getOriginalTileSize();
 
 
         getTileTexture();
@@ -41,10 +37,11 @@ public class TileManager {
 
     private void getTileTexture(){
         try{
-            sprites=ImageIO.read(getClass().getResourceAsStream("/tiles/tiles.png"));
+            sprites=ImageIO.read(getClass().getResourceAsStream("/tiles/tiles16bit.png"));
             for (int i=0;i<4;i++)
-                for (int j=0;j<4;j++){
-                    tiles[j*4+i] = new Tile(sprites.getSubimage(i*49,j*49,48,48));
+                for (int j=0;j<8;j++){
+                    tiles[j*4+i] = new Tile(sprites.getSubimage(i*(gp.getOriginalTileSize()+1),
+                            j*(gp.getOriginalTileSize()+1),gp.getOriginalTileSize(),gp.getOriginalTileSize()));
                     if (j*4+i>3)
                         tiles[j*4+i].setCollision(true);
                 }
@@ -85,6 +82,7 @@ public class TileManager {
     public void draw(Graphics2D g2){
         int worldCol=0;
         int worldRow=0;
+        waterFrame++;
 
         while (worldCol<gp.getMaxWorldCol()&&worldRow<gp.getMaxWorldRow()){
 
@@ -99,6 +97,26 @@ public class TileManager {
                 worldX - gp.getTileSize()< gp.player.getWorldX()+gp.player.getScreenX()+100 &&
                 worldY + gp.getTileSize()>gp.player.getWorldY()-gp.player.getScreenY()-100 &&
                 worldY - gp.getTileSize()< gp.player.getWorldY()+gp.player.getScreenY()+100){
+                if (tileNum==28){
+                    if(waterFrame<=60)
+                        g2.drawImage(tiles[28].getTexture(),
+                                (int)screenX, (int)screenY, gp.getTileSize(), gp.getTileSize(), null);
+                    else if (waterFrame <= 120) {
+                        g2.drawImage(tiles[29].getTexture(),
+                                (int) screenX, (int) screenY, gp.getTileSize(), gp.getTileSize(), null);
+                    }
+                    else if (waterFrame <= 180) {
+                        g2.drawImage(tiles[30].getTexture(),
+                                (int) screenX, (int) screenY, gp.getTileSize(), gp.getTileSize(), null);
+                    }
+                    else if (waterFrame <= 240) {
+                        g2.drawImage(tiles[31].getTexture(),
+                                (int) screenX, (int) screenY, gp.getTileSize(), gp.getTileSize(), null);
+                        if (waterFrame == 240)
+                            waterFrame=0;
+                    }
+                }
+                else
                 g2.drawImage(tiles[tileNum].getTexture(),
                         (int)screenX, (int)screenY, gp.getTileSize(), gp.getTileSize(), null);
             }

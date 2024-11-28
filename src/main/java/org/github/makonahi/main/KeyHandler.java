@@ -6,6 +6,7 @@ import java.awt.event.KeyListener;
 public class KeyHandler implements KeyListener {
 
     private boolean upPressed, downPressed, leftPressed, rightPressed;
+    private boolean showDebug=true;
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -29,6 +30,8 @@ public class KeyHandler implements KeyListener {
             case (KeyEvent.VK_D):
                 rightPressed=true;
                 break;
+            case (KeyEvent.VK_F1):
+                showDebug=!showDebug;
         }
     }
 
@@ -66,5 +69,9 @@ public class KeyHandler implements KeyListener {
 
     public boolean isRightPressed() {
         return rightPressed;
+    }
+
+    public boolean getShowDebug() {
+        return showDebug;
     }
 }

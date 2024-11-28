@@ -9,12 +9,12 @@ import java.awt.*;
 public class GamePanel extends JPanel implements Runnable{
 
     //screen settings
-    private final int originalTileSize=48;
-    private int scale = 3;
+    private final int originalTileSize=16;
+    private int scale = 4;
 
     private int tileSize = originalTileSize * scale;
-    private int maxScreenCol = 8;
-    private int maxScreenRow = 6;
+    private int maxScreenCol = 16;
+    private int maxScreenRow = 12;
     private int screenWidth = tileSize * maxScreenCol;
     private int screenHeight = tileSize * maxScreenRow;
 
@@ -27,10 +27,17 @@ public class GamePanel extends JPanel implements Runnable{
     //FPS
     private int FPS = 120;
 
+    public int getCurrentFPS() {
+        return currentFPS;
+    }
+
+    private int currentFPS;
+
     TileManager tileManager = new TileManager(this);
-    KeyHandler keyHandler = new KeyHandler();
+    public KeyHandler keyHandler = new KeyHandler();
     MouseHandler mouseHandler = new MouseHandler(this);
     public CollisionChecker collisionChecker = new CollisionChecker(this);
+    Debugger debugger = new Debugger(this);
     Thread gameThread;
     public Player player = new Player(this,keyHandler, tileManager);
 
@@ -48,13 +55,14 @@ public class GamePanel extends JPanel implements Runnable{
 
     public void zoomInOut(int zoomDelta){
 
-        /*int oldWorldWidth = tileSize * maxWorldCol;
+        int oldWorldWidth = tileSize * maxWorldCol;
 
-        tileSize=Math.min(Math.max(tileSize+zoomDelta*2, originalTileSize), originalTileSize*4);
+        scale=Math.min(Math.max(scale+zoomDelta,1), 8);
+        tileSize=originalTileSize*scale;
 
         int newWorldWidth = tileSize * maxWorldCol;
 
-        player.setSpeed((double) newWorldWidth/576);
+        player.setSpeed((double) newWorldWidth/256);
 
         double multiplier = (double) newWorldWidth/oldWorldWidth;
 
@@ -62,7 +70,8 @@ public class GamePanel extends JPanel implements Runnable{
         double newPlayerWorldY = player.getWorldY() * multiplier;
 
         player.setWorldX(newPlayerWorldX);
-        player.setWorldY(newPlayerWorldY);*/
+        player.setWorldY(newPlayerWorldY);
+        player.rescale();
     }
 
     public void strartGameThread(){
@@ -95,7 +104,7 @@ public class GamePanel extends JPanel implements Runnable{
             }
 
             if (timer >= 1_000_000_000){
-                System.out.println("FPS " + drawCount);
+                currentFPS = drawCount;
                 drawCount=0;
                 timer=0;
             }
@@ -112,6 +121,7 @@ public class GamePanel extends JPanel implements Runnable{
         Graphics2D g2 = (Graphics2D) g;
 
         tileManager.draw(g2);
+        debugger.showDebugInfo(g2);
         player.draw(g2);
 
         g2.dispose();
